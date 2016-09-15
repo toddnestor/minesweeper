@@ -24,12 +24,23 @@ class Tile
     @has_bomb
   end
 
+  def has_flag?
+    @has_flag
+  end
+
   def set_bomb
     @has_bomb = true
   end
 
+  def flag
+    @has_flag = true
+  end
+
+  def unflag
+    @has_flag = false
+  end
+
   def to_s
-    return "B" if has_bomb?
     if @revealed
       return @adjacent_bombs if @adjacent_bombs > 0
       "_"

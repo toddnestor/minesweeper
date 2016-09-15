@@ -37,11 +37,23 @@ class Board
   end
 
   def reveal(pos)
+    return if self[*pos].has_flag?
+
     if self[*pos].has_bomb?
       @bomb_selected = true
     else
-      adjacent_positions(pos).each {|position| self[*position].reveal}
+      adjacent_positions(pos).each do |position|
+        self[*position].reveal unless self[*position].has_flag?
+      end
     end
+  end
+
+  def flag(pos)
+    self[*pos].flag
+  end
+
+  def unflag(pos)
+    self[*pos].unflag
   end
 
   def adjacent_positions(pos, final=[])
