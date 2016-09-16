@@ -2,7 +2,7 @@ require_relative "board"
 require "yaml"
 
 class Game
-  attr_accessor :board
+  attr_accessor :board, :loaded_game
   def initialize(size = 9)
     @board = Board.new(size)
   end
@@ -10,7 +10,25 @@ class Game
   def play
     prompt_load_game if save_game_exist?
     take_turn until game_over?
-    puts "Game over"
+
+    if @board.solved?
+      puts "You won!"
+      if @loaded_game
+        puts "Do you want to delete the saved game? Enter Y for yes"
+        maybe_delete_game(gets.chomp)
+      end
+    else
+      puts "You lost!"
+    end
+
+    puts "Game over. Press enter to exit."
+    gets
+  end
+
+  def maybe_delete_game(action)
+    return unless action == 'Y'
+
+    File.delete(@loaded_game)
   end
 
   def prompt_load_game
@@ -29,7 +47,7 @@ class Game
 
     pos = nil
     action = nil
-    until action && pos && valid_action?(action) && (action == 's' || valid_pos?(pos))
+    until action && pos && valid_action?(action) && (doesnt_need_position(action) || valid_pos?(pos))
       input = get_input
       action = parse_action(input)
       pos = parse_pos(input)
@@ -47,6 +65,10 @@ class Game
     when 'e'
       abort
     end
+  end
+
+  def doesnt_need_position(action)
+    ['s','e'].include?(action)
   end
 
   def get_input
@@ -75,11 +97,12 @@ class Game
   end
 
   def save
-    File.open(next_saved_game,"w") do |f|
+    filename = @loaded_game ? @loaded_game : next_saved_game
+    File.open(filename,"w") do |f|
       f.write @board.to_yaml
     end
     puts "Game is saved!"
-    sleep(3)
+    sleep(1)
   end
 
   def next_saved_game
@@ -90,10 +113,11 @@ class Game
     File.open(filename) do |f|
       @board = YAML::load(f.read.chomp)
     end
+    @loaded_game = filename
   end
 
   def saved_games
-    Dir['saved_game/*']
+    Dir['saved_game/*'].sort
   end
 
   def get_filename(num)
@@ -102,7 +126,7 @@ class Game
 
   def list_saved_games
     saved_games.each_with_index do |game, i|
-      puts "#{i+1}: #{game.split('.').first}"
+      puts "#{i+1}: #{game.split('/')[1].split('.').first}"
     end
   end
 
