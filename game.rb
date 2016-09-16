@@ -1,5 +1,6 @@
 require_relative "board"
 require "yaml"
+
 class Game
   attr_accessor :board
   def initialize(size = 9)
@@ -28,7 +29,7 @@ class Game
 
     pos = nil
     action = nil
-    until action && pos && valid_action?(action) && valid_pos?(pos)
+    until action && pos && valid_action?(action) && (action == 's' || valid_pos?(pos))
       input = get_input
       action = parse_action(input)
       pos = parse_pos(input)
@@ -43,6 +44,8 @@ class Game
       @board.unflag(pos)
     when 's'
       save
+    when 'e'
+      abort
     end
   end
 
@@ -64,7 +67,7 @@ class Game
   end
 
   def valid_action?(action)
-    ['r','f','u'].include?(action)
+    ['r','f','u','s','e'].include?(action)
   end
 
   def game_over?
@@ -75,10 +78,12 @@ class Game
     File.open(next_saved_game,"w") do |f|
       f.write @board.to_yaml
     end
+    puts "Game is saved!"
+    sleep(3)
   end
 
   def next_saved_game
-    "game#{saved_games.length > 0 ? "-#{saved_games.length + 1}"}.minesweeper"
+    "saved_game/game#{saved_games.length > 0 ? "-#{saved_games.length + 1}" : ""}.minesweeper"
   end
 
   def load(filename)
@@ -96,18 +101,14 @@ class Game
   end
 
   def list_saved_games
-    saved_games =
-
     saved_games.each_with_index do |game, i|
       puts "#{i+1}: #{game.split('.').first}"
     end
   end
 
   def save_game_exist?
-    saved_games.length > 0?
+    saved_games.length > 0
   end
-
-
 end
 
 if __FILE__ == $PROGRAM_NAME

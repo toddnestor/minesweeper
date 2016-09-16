@@ -83,6 +83,7 @@ class Board
 
 
   def render
+    system("clear")
     puts "  #{(1..size).to_a.join(" ")}"
     rows.each_with_index do |row, i|
       puts "#{i+1} #{row.map(&:to_s).join(" ")}"
