@@ -43,6 +43,8 @@ class Game
   end
 
   def take_turn
+    system("clear")
+    instructions
     @board.render
 
     pos = nil
@@ -65,6 +67,21 @@ class Game
     when 'e'
       abort
     end
+  end
+
+  def instructions
+    puts [
+      "Enter your action followed by a position if required for your action.",
+      "The available actions are:",
+      "r for revealing a position.",
+      "f for flagging a position.",
+      "u for unflagging a position.",
+      "s to save your game.",
+      "e to exit the game.",
+      "Positions are entered as row,column, for example 3,4.",
+      "To reveal the position in the 3rd row and 4th column you'd enter: r3,4",
+      "Saving and exiting do not require positions."
+    ].join("\n")
   end
 
   def doesnt_need_position(action)
