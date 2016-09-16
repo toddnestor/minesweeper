@@ -89,7 +89,7 @@ class Game
   end
 
   def get_input
-    puts "choose a position to reveal"
+    puts "What would you like to do?"
     gets.chomp
   end
 
